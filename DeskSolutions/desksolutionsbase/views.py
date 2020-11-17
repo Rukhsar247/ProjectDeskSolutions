@@ -10,6 +10,11 @@ from DeskSolutions import settings
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.db import models
+from account.models import User
+import desksolutionsbase.models
 
 def home(request):
     return render(request, "desksolutions/base.html")
@@ -98,19 +103,19 @@ def signup(request):
                 # print(org.id)
                 user.organization = get_organization
                 user.save()
-                group, created = Group.objects.get_or_create(
-                    name=settings.GROUP_ALLOCATE)
+                #group, created = Group.objects.get_or_create(
+                 #   name=settings.GROUP_ALLOCATE)
 
-                ct = ContentType.objects.get_for_model(Organization)
-                if created:
-                    permission = Permission.objects.filter(content_type=ct)
+                #ct = ContentType.objects.get_for_model(Organization)
+                #if created:
+                 #   permission = Permission.objects.filter(content_type=ct)
 
-                    for perm in permission:
-                        group.permissions.add(perm)
-                    group.save()
-                    user.groups.add(group)
-                else:
-                    user.groups.add(group)
+                  #  for perm in permission:
+                   #     group.permissions.add(perm)
+                    #group.save()
+                    #user.groups.add(group)
+                #else:
+                 #   user.groups.add(group)
                 # profile.organization = user
                 # profile.save()
                 del request.session['organization']
@@ -123,3 +128,30 @@ def signup(request):
             context['user_form'] = user_form
 
         return render(request, 'desksolutionsbase/register.html', context)
+
+
+
+
+
+
+class AddGroup(models.Model):
+    user = models.ForeignKey(User, null=True, blank=True,
+    on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user
+@receiver(post_save, sender=User)
+def save_post(sender, instance, created, **kwargs):
+    ct = ContentType.objects.get_for_model(Organization)
+    group, created = Group.objects.get_or_create(
+                    name=settings.GROUP_ALLOCATE)
+    if created:
+       permission = Permission.objects.filter(content_type=ct)            
+       for perm in permission:  
+           group.permissions.add(perm)
+       group.save()
+       views.user.groups.add(group)
+    AddGroup.objects.create(user=instance)
+    print("Successfully Add In The Group ")
+    
+post_save.connect(save_post, sender=User)
