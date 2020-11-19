@@ -155,7 +155,7 @@ class UserAdmin(BaseUserAdmin):
 
         obj.save()
 
-        
+        #send password from email
         send_mail('This is your passwrd', password, 'solutionsdesktop19@gmail.com', [obj], fail_silently=False)
         return obj
 
