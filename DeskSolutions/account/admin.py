@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .forms import UserModelForm, CustomDepartmentForm, ProfileFormSet
 from django.contrib.auth.models import Group, Permission
 from django.utils.crypto import get_random_string
+from django.core.mail import send_mail
 
 
 class ProfileInline(admin.TabularInline):
@@ -55,7 +56,7 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = ()
 
     fieldsets = (
-        ("Information", {'fields': ('email', 'phone', 'address')}),
+        ("Information", {'fields': ('email', 'phone', 'address', 'groups')}),
         ('Permissions', {'fields': ('is_staff',
                                     'is_active',)}),
     )
@@ -142,15 +143,20 @@ class UserAdmin(BaseUserAdmin):
         obj = form.save(commit=False)
         password = get_random_string(length=7)
         # qs = Organization.objects.
-        print(user)
-        print(obj)
+        print("user object is here",user)
+        print("objecst calss is here",obj)
+        print("Here is my new generated password", password)
         if obj and not change:
             print("in here")
+            #print("Here is my emmail ", use)
             obj.organization = user.organization
             obj.password = password
             obj.is_admin = False
 
         obj.save()
+
+        
+        send_mail('This is your passwrd', password, 'solutionsdesktop19@gmail.com', [obj], fail_silently=False)
         return obj
 
 

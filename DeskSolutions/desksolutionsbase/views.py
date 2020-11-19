@@ -68,7 +68,6 @@ def OrganizationRegister(request):
 
     return render(request, "desksolutionsbase/base.html", context)
 
-
 @organization_absent
 def signup(request):
     session_name = request.session.get('organization')
@@ -103,19 +102,34 @@ def signup(request):
                 # print(org.id)
                 user.organization = get_organization
                 user.save()
-                #group, created = Group.objects.get_or_create(
-                 #   name=settings.GROUP_ALLOCATE)
+                group, created = Group.objects.get_or_create(
+                    name=settings.GROUP_ALLOCATE)
+                print("I am in entering in group Entering code")
+                ct = ContentType.objects.get_for_model(Organization)
+                if created:
+                    print("I am in IF Condition!!!")
+                    permission = Permission.objects.filter(content_type=ct)
 
-                #ct = ContentType.objects.get_for_model(Organization)
-                #if created:
-                 #   permission = Permission.objects.filter(content_type=ct)
+                    for perm in permission:
+                        group.permissions.add(perm)
+                    group.save()
+                    user.groups.add(group)
+                else:
+                    print("I am in else condition!!!")
 
-                  #  for perm in permission:
-                   #     group.permissions.add(perm)
-                    #group.save()
-                    #user.groups.add(group)
-                #else:
-                 #   user.groups.add(group)
+                    permission = Permission.objects.filter(content_type=ct)
+
+                    print("Permission is ", permission)
+
+                    for perm in permission:
+                        group.permissions.add(perm)
+                    group.save()
+
+                    print("group is ", group)
+
+                    user.groups.add(group)
+
+                #    user.groups.add(group)
                 # profile.organization = user
                 # profile.save()
                 del request.session['organization']
@@ -132,26 +146,56 @@ def signup(request):
 
 
 
-
-
 class AddGroup(models.Model):
     user = models.ForeignKey(User, null=True, blank=True,
     on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user
+
 @receiver(post_save, sender=User)
 def save_post(sender, instance, created, **kwargs):
-    ct = ContentType.objects.get_for_model(Organization)
-    group, created = Group.objects.get_or_create(
-                    name=settings.GROUP_ALLOCATE)
-    if created:
-       permission = Permission.objects.filter(content_type=ct)            
-       for perm in permission:  
-           group.permissions.add(perm)
-       group.save()
-       views.user.groups.add(group)
-    AddGroup.objects.create(user=instance)
-    print("Successfully Add In The Group ")
-    
+    #session_name = request.session.get('organization')
+    #print(session_name)
+    #if session_name is not None:
+        #get_organization = Organization.objects.get(id=session_name)
+        #print(get_organization)
+        #get_org = get_object_or_404(Organization, title=url)
+        #print("in signup function")
+        #context = {}
+        #if request.
+       # if request.method == "POST":
+      #          user_form = RegisterForm(request.POST or None)
+     #           if user_form.is_valid():
+    #               print("form valid")
+   #                user = user_form.save(commit=False)
+  #                 user.organization = get_organization
+ #                  user.save()
+#
+             #      ct = ContentType.objects.get_for_model(Organization)
+            #       group, created = Group.objects.get_or_create(
+           #        name=settings.GROUP_ALLOCATE)
+          #         if created:
+         #             print("I am in if statement")
+        #              permission = Permission.objects.filter(content_type=ct)            
+       #               for perm in permission:  
+      #                    group.permissions.add(perm)
+     #                     group.save()
+    #                      views.user.groups.add(group)
+   #                 else:
+  #                      print("I am in else Condition!!!")
+ #                       user.groups.add(group)
+#
+      #          del request.session['organization']  
+     #           else:
+    #                print("invalid form")
+   #                 context['user_form'] = user_for
+  #      else:
+ #           user_form = RegisterForm()
+#            context['user_form'] = user_form
+
+ #   return render(request, 'desksolutionsbase/register.html', context)
+
+   AddGroup.objects.create(user=instance)
+   print("Successfully Add In The Group ")
 post_save.connect(save_post, sender=User)
