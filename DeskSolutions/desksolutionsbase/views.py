@@ -144,7 +144,7 @@ def signup(request):
         return render(request, 'desksolutionsbase/register.html', context)
 
 
-
+#  Signals
 
 class AddGroup(models.Model):
     user = models.ForeignKey(User, null=True, blank=True,
@@ -155,46 +155,6 @@ class AddGroup(models.Model):
 
 @receiver(post_save, sender=User)
 def save_post(sender, instance, created, **kwargs):
-    #session_name = request.session.get('organization')
-    #print(session_name)
-    #if session_name is not None:
-        #get_organization = Organization.objects.get(id=session_name)
-        #print(get_organization)
-        #get_org = get_object_or_404(Organization, title=url)
-        #print("in signup function")
-        #context = {}
-        #if request.
-       # if request.method == "POST":
-      #          user_form = RegisterForm(request.POST or None)
-     #           if user_form.is_valid():
-    #               print("form valid")
-   #                user = user_form.save(commit=False)
-  #                 user.organization = get_organization
- #                  user.save()
-#
-             #      ct = ContentType.objects.get_for_model(Organization)
-            #       group, created = Group.objects.get_or_create(
-           #        name=settings.GROUP_ALLOCATE)
-          #         if created:
-         #             print("I am in if statement")
-        #              permission = Permission.objects.filter(content_type=ct)            
-       #               for perm in permission:  
-      #                    group.permissions.add(perm)
-     #                     group.save()
-    #                      views.user.groups.add(group)
-   #                 else:
-  #                      print("I am in else Condition!!!")
- #                       user.groups.add(group)
-#
-      #          del request.session['organization']  
-     #           else:
-    #                print("invalid form")
-   #                 context['user_form'] = user_for
-  #      else:
- #           user_form = RegisterForm()
-#            context['user_form'] = user_form
-
- #   return render(request, 'desksolutionsbase/register.html', context)
 
    AddGroup.objects.create(user=instance)
    print("Successfully Add In The Group ")
